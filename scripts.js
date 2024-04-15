@@ -46,7 +46,7 @@ function addStudent() {
 }
 
 function showTable() {
-    const headers = ['ID', 'Name', 'Register Number', 'Email', 'Attendance', 'Add Attendance', 'OOSE', 'DevOps', 'PPL', 'WAS', 'UI/UX', 'ESIOT', 'EVsIA', 'Add Marks', 'Edit/Delete'];
+    const headers = ['ID', 'Name', 'Register Number', 'Email', 'Attendance', 'Add Attendance', 'OOSE Marks', 'DevOps Marks', 'PPL Marks', 'WAS Marks', 'UI/UX Marks', 'ESIOT Marks', 'EVsIA Marks', 'Add Marks', 'Edit/Delete'];
     const tableBody = document.getElementById('tbody');
     tableBody.innerHTML = "";
 
@@ -60,29 +60,22 @@ function showTable() {
                 cell.innerHTML = student[header] ? student[header].map(entry => `${entry.date}: ${entry.status}`).join('<br>') : '';
             } else if (header === 'Add Attendance') {
                 cell.innerHTML = `<button onclick="addAttendance(${student.ID})">Add</button>`;
-            } else if (header === 'OOSE' || header === 'DevOps' || header === 'PPL' || header === 'WAS' || header === 'UI/UX' || header === 'ESIOT' || header === 'EVsIA') {
-                cell.innerHTML = student['Marks'][header] !== undefined ? student['Marks'][header] : '';
             } else if (header === 'Add Marks') {
-                cell.innerHTML = `<button onclick="addMarks(${student.ID})">Add</button>`;
+                cell.innerHTML = `<button onclick="addMarks(${student.ID})">Add Marks</button>`;
+            } else if (header === 'Edit/Delete') {
+                const editBtn = createButton('Edit', () => edit(student['ID']));
+                const deleteBtn = createButton('Delete', () => del(student['ID']));
+                cell.appendChild(editBtn);
+                cell.appendChild(deleteBtn);
+            } else if (header.endsWith('Marks')) {
+                const subject = header.split(' ')[0];
+                cell.innerHTML = student.Marks && student.Marks[subject] ? student.Marks[subject] : '';
             } else {
                 cell.innerHTML = student[header] !== undefined ? student[header] : '';
             }
 
             row.appendChild(cell);
         });
-
-        // Create edit and delete buttons
-        const editBtn = createButton('Edit', () => edit(student['ID']));
-        const deleteBtn = createButton('Delete', () => del(student['ID']));
-
-        // Create cell for edit and delete buttons
-        const buttonCell = document.createElement('td');
-        buttonCell.classList.add('edit-delete-column');
-        buttonCell.appendChild(editBtn);
-        buttonCell.appendChild(deleteBtn);
-
-        // Append the button cell to the last column of the row
-        row.appendChild(buttonCell);
 
         // Append the row to the table body
         tableBody.appendChild(row);
@@ -137,41 +130,48 @@ function saveToLocalStorage() {
     localStorage.setItem('students', JSON.stringify(students));
 }
 
-function importStudents() {
-    const fileInput = document.getElementById('fileInput');
-    const file = fileInput.files[0];
-    if (file) {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            const data = new Uint8Array(e.target.result);
-            const workbook = XLSX.read(data, { type: 'array' });
-            const sheetName = workbook.SheetNames[0];
-            const sheet = workbook.Sheets[sheetName];
-            const importedStudents = XLSX.utils.sheet_to_json(sheet);
+function addAttendance(id) {
+    const student = students.find(student => student.ID === id);
+    if (student) {
+        const attendanceDate = document.getElementById('attendance-date').value;
+        const attendanceStatus = document.getElementById('attendance-status').value;
 
-            // Reset the students array to clear any existing data
-            students = [];
+        if (attendanceDate && attendanceStatus) {
+            student.Attendance.push({ date: attendanceDate, status: attendanceStatus });
+            saveToLocalStorage(); // Save changes to localStorage
+            showTable(); // Update the table after adding attendance
+        } else {
+            alert("Please select both date and status.");
+        }
+    } else {
+        alert("Student not found!");
+    }
+}
 
-            // Loop through the imported data and add it to the students array
-            importedStudents.forEach(importedStudent => {
-                const newStudent = {
-                    ID: students.length + 1,
-                    Name: importedStudent.Name,
-                    'Register Number': importedStudent['Register Number'],
-                    Email: importedStudent.Email,
-                    Attendance: [], // Initialize Attendance array for each student
-                    Marks: {} // Initialize Marks object for each student
-                };
-                students.push(newStudent);
-            });
+function addMarks(id) {
+    const student = students.find(student => student.ID === id);
+    if (student) {
+        const marks = {};
 
-            // Save imported students to localStorage
-            saveToLocalStorage();
+        // Prompt for marks for each subject
+        const subjects = ['OOSE', 'DevOps', 'PPL', 'WAS', 'UI/UX', 'ESIOT', 'EVsIA'];
+        subjects.forEach(subject => {
+            const mark = prompt(`Enter marks for ${subject}:`);
+            if (mark !== null && mark !== '') {
+                marks[subject] = mark;
+            }
+        });
 
-            // Update the table with imported data
-            showTable();
-        };
-        reader.readAsArrayBuffer(file);
+        // Update student's marks
+        student.Marks = marks;
+
+        // Save changes to localStorage
+        saveToLocalStorage();
+
+        // Update the table after adding marks
+        showTable();
+    } else {
+        alert("Student not found!");
     }
 }
 
@@ -182,7 +182,7 @@ function downloadRecords() {
         const rowData = [
             student['ID'],
             student['Name'],
-            student['Register Number'],
+            Math.floor(student['Register Number']), // Remove decimal places from register number
             student['Email'],
             attendance,
             student['Marks'] ? student['Marks']['OOSE'] || '' : '',
@@ -204,47 +204,40 @@ function downloadRecords() {
     link.click();
 }
 
-function addAttendance(id) {
-    const student = students.find(student => student.ID === id);
-    if (student) {
-        const attendanceDate = document.getElementById('edit-attendance-date').value;
-        const attendanceStatus = document.getElementById('edit-attendance-status').value;
+function importStudents() {
+    const fileInput = document.getElementById('fileInput');
+    const file = fileInput.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const data = new Uint8Array(e.target.result);
+            const workbook = XLSX.read(data, { type: 'array' });
+            const sheetName = workbook.SheetNames[0];
+            const sheet = workbook.Sheets[sheetName];
+            const importedStudents = XLSX.utils.sheet_to_json(sheet);
 
-        if (attendanceDate && attendanceStatus) {
-            student.Attendance.push({ date: attendanceDate, status: attendanceStatus });
-            saveToLocalStorage(); // Save changes to localStorage
-            showTable(); // Update the table after adding attendance
-        } else {
-            alert("Please select both date and status.");
-        }
-    } else {
-        alert("Student not found!");
-    }
-}
+            // Reset the students array to clear any existing data
+            students = [];
 
-function addMarks(id) {
-    const student = students.find(student => student.ID === id);
-    if (student) {
-        const ooseMarks = document.getElementById('edit-oose-marks').value;
-        const devOpsMarks = document.getElementById('edit-devops-marks').value;
-        const pplMarks = document.getElementById('edit-ppl-marks').value;
-        const wasMarks = document.getElementById('edit-was-marks').value;
-        const uiuxMarks = document.getElementById('edit-uiux-marks').value;
-        const esiotMarks = document.getElementById('edit-esiot-marks').value;
-        const evsiaMarks = document.getElementById('edit-evsia-marks').value;
+            importedStudents.forEach(importedStudent => {
+                const newStudent = {
+                    ID: students.length + 1,
+                    Name: importedStudent.Name,
+                    'Register Number': importedStudent['Register Number'], // Adjust column header here
+                    Email: importedStudent.Email,
+                    Attendance: [], // Initialize Attendance array for each student
+                    Marks: {} // Initialize Marks object for each student
+                };
+                students.push(newStudent);
+            });
+            
+            // Save imported students to localStorage
+            saveToLocalStorage();
 
-        student.Marks = {
-            'OOSE': ooseMarks,
-            'DevOps': devOpsMarks,
-            'PPL': pplMarks,
-            'WAS': wasMarks,
-            'UI/UX': uiuxMarks,
-            'ESIOT': esiotMarks,
-            'EVsIA': evsiaMarks
+            // Update the table with imported data
+            showTable();
         };
-        saveToLocalStorage(); // Save changes to localStorage
-        showTable(); // Update the table after adding marks
-    } else {
-        alert("Student not found!");
+        reader.readAsArrayBuffer(file);
     }
 }
+
