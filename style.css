@@ -1,37 +1,38 @@
-body{
+body {
+    align-items: normal;
     background-color: black;
     color: white;
     margin: 0;
     font-family: 'Inter', sans-serif;
 }
-*{
+
+* {
     box-sizing: border-box;
 }
-a:hover{
+
+a:hover {
     cursor: pointer;
 }
 
-.container{
+.container {
     margin: 20px 50px;
 }
 
-.input-container{
-   
+.input-container {
     display: grid;
-    grid-template-columns: repeat(3,auto);
-    gap:30px;
+    grid-template-columns: repeat(3, auto);
+    gap: 30px;
     padding: 0;
-
 }
 
-.degree{
+.degree {
     display: flex;
     justify-content: space-around;
     align-items: center;
     gap: 10px;
 }
 
-.input-container input{
+.input-container input {
     background-color: black;
     border: 1px solid white;
     height: 40px;
@@ -40,49 +41,45 @@ a:hover{
     color: white;
 }
 
-.icons{
+.icons {
     margin-top: 10px;
     display: flex;
     justify-content: center;
-    gap:10px
+    gap: 10px;
 }
-.table{
-    border: 1px solid white;
-    width:100%;
+
+.table {
+    border: 1px solid white; /* Add border to the table */
+    width: 100%;
     border-spacing: 0;
     min-height: 200px;
     overflow-x: auto;
 }
 
-th,td{
+th,
+td {
     text-align: center;
+    border-style: solid;
+    border-color: white; /* Add border to all table cells */
+    padding: 10px; /* Set padding for all table cells */
 }
-th{
-    border-bottom: 1px solid white;
-    border-right: 1px solid white;
-    padding: 10px;
-}
-td{
-    padding: 10px;
-    border-right: 1px solid white;
-}
-tbody{
+
+tbody {
     height: auto;
 }
 
-.search{
-    width:100%;
+.search {
+    width: 100%;
     background-color: black;
     border: 1px solid white;
     height: 40px;
     padding: 0;
     margin-bottom: 30px;
     margin-top: 20px;
-    width:100%;
+    width: 100%;
     padding-left: 10px;
     color: white;
 }
-
 
 .button {
     height: 40px;
