@@ -13,6 +13,7 @@
 </head>
 <body>
     <div class="container">
+        <!-- Your existing content -->
         <h1>Student Management System</h1>
         <div class="input-container">
             <input type="text" placeholder="Name" id="name" autocomplete="off">
@@ -30,10 +31,9 @@
             <div id="myDropdown" class="autocomplete-items">
                 <!-- Generated autocomplete options will be appended here -->
             </div>
-        </div>
+        </div>    
 
-        <!-- Modify the table structure to include columns for Attendance and Marks -->
-        <table class="table" id="table">
+        <table class="table" id="table" align="center">
             <thead>
                 <tr>
                     <th>ID</th>
@@ -42,21 +42,22 @@
                     <th>Email</th>
                     <th>Attendance</th>
                     <th>Add Attendance</th>
-                    <th>OOSE Marks</th>
+                    <th>OOSE Marks</th> 
                     <th>DevOps Marks</th>
                     <th>PPL Marks</th>
                     <th>WAS Marks</th>
                     <th>UI/UX Marks</th>
                     <th>ESIOT Marks</th>
-                    <th>EVsIA Marks</th>
+                    <th>EVsIA Marks</th></th>
                     <th>Add Marks</th>
-                    <th>Edit/Delete</th> <!-- Edit/Delete column -->
+                    <th>Edit/Delete</th>
                 </tr>
             </thead>
             <tbody id="tbody">
             </tbody>
         </table>
 
+        <!-- Your existing content -->
         <!-- Attendance Page -->
         <div id="attendance-page">
             <h2>Attendance</h2>
@@ -69,7 +70,7 @@
                 <button onclick="updateAttendance()">Update Attendance</button>
             </div>
         </div>
-
+        
         <!-- Marks Page -->
         <div id="marks-page">
             <h2>Marks</h2>
