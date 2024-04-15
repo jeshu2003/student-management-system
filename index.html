@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mini Project</title>
+    <link rel="stylesheet" href="./style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <h1>Student Management System</h1>
+        <div class="input-container">
+            <input type="text" placeholder="Name" id="name" autocomplete="off">
+            <input type="text" placeholder="Register Number" id="regNumber">
+            <input type="email" placeholder="Email" id="email">
+        </div>
+
+        <button class="button" type="submit" id="submit" onclick="addStudent()">Add Student</button>
+
+        <input class="search" type="text" id="search" onkeyup="search()" placeholder="Search By Name, Register Number, or Email">
+
+        <!-- Autocomplete section -->
+        <div class="autocomplete" style="width:300px;">
+            <input id="myInput" type="text" name="myCountry" placeholder="Country">
+            <div id="myDropdown" class="autocomplete-items">
+                <!-- Generated autocomplete options will be appended here -->
+            </div>
+        </div>
+
+        <!-- Modify the table structure to include columns for Attendance and Marks -->
+        <table class="table" id="table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Student Name</th>
+                    <th>Register Number</th>
+                    <th>Email</th>
+                    <th>Attendance</th>
+                    <th>Add Attendance</th>
+                    <th>OOSE Marks</th>
+                    <th>DevOps Marks</th>
+                    <th>PPL Marks</th>
+                    <th>WAS Marks</th>
+                    <th>UI/UX Marks</th>
+                    <th>ESIOT Marks</th>
+                    <th>EVsIA Marks</th>
+                    <th>Add Marks</th>
+                    <th>Edit/Delete</th> <!-- Edit/Delete column -->
+                </tr>
+            </thead>
+            <tbody id="tbody">
+            </tbody>
+        </table>
+
+        <!-- Attendance Page -->
+        <div id="attendance-page">
+            <h2>Attendance</h2>
+            <div class="input-container">
+                <input type="date" id="attendance-date">
+                <select id="attendance-status">
+                    <option value="Present">Present</option>
+                    <option value="Absent">Absent</option>
+                </select>
+                <button onclick="updateAttendance()">Update Attendance</button>
+            </div>
+        </div>
+
+        <!-- Marks Page -->
+        <div id="marks-page">
+            <h2>Marks</h2>
+            <div class="input-container">
+                <input type="text" placeholder="Register Number" id="marks-regNumber">
+                <!-- Add your marks fields here -->
+                <input type="number" placeholder="OOSE marks" id="oose-marks">
+                <input type="number" placeholder="DevOps marks" id="devops-marks">
+                <input type="number" placeholder="PPL marks" id="ppl-marks">
+                <input type="number" placeholder="WAS marks" id="was-marks">
+                <input type="number" placeholder="UI/UX marks" id="uiux-marks">
+                <input type="number" placeholder="ESIOT marks" id="esiot-marks">
+                <input type="number" placeholder="EVsIA marks" id="evsia-marks">
+                <!-- Add more fields as needed -->
+                <button onclick="addMarks()">Add Marks</button>
+            </div>
+        </div>
+
+        <!-- Button to download records -->
+        <button onclick="downloadRecords()">Download Records</button>
+
+        <!-- Delete All Students Button -->
+        <button onclick="deleteAllStudents()">Delete All Students</button>
+
+        <!-- File Upload Section -->
+        <h2>Import Student Details</h2>
+        <input type="file" id="fileInput" accept=".xlsx, .xls">
+        <button onclick="importStudents()">Import Students</button>
+    </div>
+
+    <!-- Include your handler code here -->
+    <script src="./scripts.js"></script>
+    <!-- Include your excel code here-->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.4/xlsx.full.min.js"></script>
+    <!-- Include your autocomplete code here-->
+    <script>
+        // Your autocomplete JavaScript code goes here
+        // Function to initialize autocomplete for student names
+        function autocompleteStudentNames(inp, arr) {
+            // Function to close all autocomplete lists
+            function closeAllLists(elmnt) {
+                const x = document.getElementsByClassName("autocomplete-items");
+                for (let i = 0; i < x.length; i++) {
+                    if (elmnt !== x[i] && elmnt !== inp) {
+                        x[i].parentNode.removeChild(x[i]);
+                    }
+                }
+            }
+
+            // Add event listeners
+            inp.addEventListener("input", function(e) {
+                let val = this.value;
+                closeAllLists();
+                if (!val) { return false; }
+                const dropdown = document.createElement("div");
+                dropdown.setAttribute("class", "autocomplete-items");
+                this.parentNode.appendChild(dropdown);
+                for (let i = 0; i < arr.length; i++) {
+                    if (arr[i].Name.substr(0, val.length).toUpperCase() === val.toUpperCase()) {
+                        const option = document.createElement("div");
+                        option.innerHTML = "<strong>" + arr[i].Name.substr(0, val.length) + "</strong>";
+                        option.innerHTML += arr[i].Name.substr(val.length);
+                        option.innerHTML += "<input type='hidden' value='" + arr[i].Name + "'>";
+                        option.addEventListener("click", function(e) {
+                            inp.value = this.getElementsByTagName("input")[0].value;
+                            closeAllLists();
+                        });
+                        dropdown.appendChild(option);
+                    }
+                }
+            });
+
+            // Add event listener for other document clicks
+            document.addEventListener("click", function (e) {
+                closeAllLists(e.target);
+            });
+        }
+
+        // Function to extract student names from your data structure
+        function extractStudentNames(students) {
+            const names = students.map(student => ({ "Name": student.Name }));
+            return names;
+        }
+
+        // Call the autocomplete function on the input field with id "name"
+        const studentNames = extractStudentNames(students);
+        autocompleteStudentNames(document.getElementById("name"), studentNames);
+
+    </script>
+</body>
+</html>
